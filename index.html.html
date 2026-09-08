@@ -1,0 +1,169 @@
+경대간호학원 협약 - 의원
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>경대간호학원</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map { width: 100%; height: 750px; }
+        
+        /* 공통 기본 형태 */
+        .company-box {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            white-space: nowrap;
+            display: inline-block;
+            transition: transform 0.1s ease;
+        }
+
+        /* 마우스 올렸을 때 약간 커지는 효과 */
+        .company-box:hover {
+            transform: scale(1.08);
+        }
+
+        /* --------------------------------------------------
+           [개별 배경색 & 글자색 설정]
+        -------------------------------------------------- */
+        /* 1. 흰색 배경 + 검은 글자 (기본 50개용) */
+        .company-box.style-white {
+            background-color: #ffffff;
+            color: #212529;
+            border: 2px solid #333333;
+        }
+
+        /* 2. 파란 배경 + 흰 글자 (강조용) */
+        .company-box.style-blue {
+            background-color: #007bff;
+            color: #ffffff;
+            border: 1px solid #0056b3;
+        }
+
+        /* 3. 빨간 배경 + 흰 글자 (강조용) */
+        .company-box.style-red {
+            background-color: #dc3545;
+            color: #ffffff;
+            border: 1px solid #bd2130;
+        }
+
+        /* 4. 노란 배경 + 검은 글자 (강조용) */
+        .company-box.style-yellow {
+            background-color: #ffc107;
+            color: #212529;
+            border: 1px solid #e0a800;
+        }
+
+        /* 5. 경대간호학원용 (강조용) */
+        .company-box.style-kdnurse {
+            background-color: #007bff;
+            color: #ffffff;
+            border: 2px solid #e0a800;
+	font-size: 15px;
+
+        }
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+    // 대구 중심 좌표 설정
+    var map = L.map('map').setView([35.8890, 128.6184], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // 총 55개 업체 데이터
+    var stores = [
+         // --- [경대간호학원 메인] ---
+        { name: "경대간호학원", lat: 35.8980229607434, lng: 128.61481967896094, url: "http://kdnurse.com", type: "style-kdnurse" },
+
+        // --- [흰 바탕 + 검정 글 50개 예시] ---
+        { name: "상인한의원", lat: 35.8115760187349, lng: 128.536980107165, url: "https://naver.me/5wWBtIsu", type: "style-white" },
+        { name: "푸른맘한의원", lat: 35.8551638536993, lng: 128.504749922611, url: "https://naver.me/xIFVQBkU", type: "style-white" },
+        { name: "최종원한의원", lat: 35.87013793864769, lng: 128.59873583249114, url: "https://cjwacnemedi.com/", type: "style-white" },
+        { name: "갑자한의원", lat: 35.8954347, lng: 128.6172183, url: "https://naver.me/F2Z519zk", type: "style-white" },
+        { name: "올리브치과의원", lat: 35.8988456647666, lng: 128.61133434303, url: "https://naver.me/x1me58cR", type: "style-white" },
+        { name: "예재호내과의원", lat: 35.8781139681609, lng: 128.73213529337, url: "http://yejeaho-clinic.com/", type: "style-white" },
+        { name: "예스연합비뇨기과의원", lat: 35.8992860968872, lng: 128.610209141354, url: "http://www.yesdoctor.co.kr/", type: "style-white" },
+        { name: "비엘성형외과의원", lat: 35.8701436922386, lng: 128.59674530063194, url: "https://bl.or.kr/", type: "style-white" },
+        { name: "더베스트치과의원", lat: 35.8855925070814, lng: 128.634745462249, url: "https://naver.me/GctEwoLb", type: "style-white" },
+        { name: "이사랑치과의원", lat: 35.8794350028779, lng: 128.558912295524, url: "https://naver.me/513kfH36", type: "style-white" },
+        { name: "미즈피부과의원", lat: 35.8878408166605, lng: 128.592431830562, url: "http://www.mizskin.com/", type: "style-white" },
+        { name: "신세계정형외과의원", lat: 35.83016777140161, lng: 128.55059013477157, url: "http://www.shinsegaeos.com/", type: "style-white" },
+        { name: "복현연합내과의원", lat: 35.89810623118869, lng: 128.6159311178023, url: "https://sites.google.com/view/bokhyunyeonhabnaegwa/%ED%99%88", type: "style-white" },
+        { name: "미소지앤의원", lat: 35.8556983691035, lng: 128.552819619652, url: "http://www.misozien.net/", type: "style-white" },
+        { name: "요셉신경외과의원", lat: 35.8627440305183, lng: 128.602592573271, url: "https://naver.me/5huavHJR", type: "style-white" },
+        { name: "동영연합의원", lat: 35.8995780848652, lng: 128.596441507135, url: "https://naver.me/5AgSK6Wn", type: "style-white" },
+        { name: "만평치과의원", lat: 35.8894085381234, lng: 128.565588432736, url: "https://naver.me/GJZV84tI", type: "style-white" },
+        { name: "명인한의원", lat: 35.9154979211268, lng: 128.548116473439, url: "https://naver.me/GWekYgDt", type: "style-white" },
+        { name: "기쁨큰치과의원", lat: 35.891173990692764, lng: 128.59060708143323, url: "https://naver.me/GP2MRmOz", type: "style-white" },
+        { name: "새소망내과의원", lat: 35.8976324629133, lng: 128.616315765255, url: "https://naver.me/x5Gnh8D5", type: "style-white" },
+        { name: "하나한의원", lat: 35.9109226180033, lng: 128.640481590931, url: "https://naver.me/5A3DXfuV", type: "style-white" },
+        { name: "김시형더좋은치과의원", lat: 35.8880764627394, lng: 128.590970357104, url: "https://naver.me/FpxemEhd", type: "style-white" },
+        { name: "미래이비인후과의원", lat: 35.8401700551009, lng: 128.62262267091367, url: "https://blog.naver.com/entmira", type: "style-white" },
+        { name: "경대연합연경속내과의원", lat: 35.94279754799545, lng: 128.63015073828058, url: "https://naver.me/5NMk4bqB", type: "style-white" },
+        { name: "동대구내과의원", lat: 35.88088553142437, lng: 128.61197250556523, url: "https://naver.me/Gf0vtPbS", type: "style-white" },
+        { name: "다나연합내과의원", lat: 35.849278786863394, lng: 128.53513292051704, url: "https://www.danamed.co.kr/", type: "style-white" },
+        { name: "렛츠성형외과의원", lat: 35.8645842284504, lng: 128.598936451586, url: "http://letsplasticsurgery.com/", type: "style-white" },
+        { name: "동제한의원", lat: 35.8995447712923, lng: 128.608659377208, url: "https://naver.me/F74LYEBP", type: "style-white" },
+        { name: "신세계연합의원", lat: 35.89962322746051, lng: 128.60973086255223, url: "http://www.ssgclinic.kr/", type: "style-white" },
+        { name: "코아이비인후과의원", lat: 35.8988528718993, lng: 128.611334489137, url: "https://blog.naver.com/coaent75", type: "style-white" },
+        { name: "제생한의원", lat: 35.887269681966, lng: 128.639426496686, url: "https://naver.me/ximqrj3y", type: "style-white" },
+        { name: "동천한의원", lat: 35.8856569807125, lng: 128.635304894632, url: "https://naver.me/GeUm0r0B", type: "style-white" },
+        { name: "최상희치과의원", lat: 35.85827526343602, lng: 128.57747153518278, url: "https://naver.me/xwm1uYUL", type: "style-white" },
+        { name: "기운찬마취통증의학과의원", lat: 35.82063090751615, lng: 128.63978974911518, url: "http://giwoonchan.co.kr/", type: "style-white" },
+        { name: "서울태365한의원", lat: 35.89959083987743, lng: 128.6097268839453, url: "https://blog.naver.com/seoultae365", type: "style-white" },
+        { name: "경산연합이비인후과의원", lat: 35.8245216629039, lng: 128.736918246297, url: "https://naver.me/Gsj2cqy9", type: "style-white" },
+        { name: "검단한의원", lat: 35.9074492578408, lng: 128.620206161851, url: "https://naver.me/GbDOIOMP", type: "style-white" },
+        { name: "장수한의원", lat: 35.888972497933615, lng: 128.57982227241712, url: "https://naver.me/5HkXj13z", type: "style-white" },
+        { name: "윤한의원", lat: 35.80970408193849, lng: 128.51363613807524, url: "https://naver.me/xq3tlLuO", type: "style-white" },
+        { name: "유길한의원", lat: 35.8999548889188, lng: 128.615698458509, url: "https://naver.me/5UEfzRnj", type: "style-white" },
+        { name: "에스본정형외과의원", lat: 35.898070271378636, lng: 128.61579083777642, url: "http://s-boneos.kr/", type: "style-white" },
+        { name: "2080연합피부과의원", lat: 35.8888624995533, lng: 128.59176126979858, url: "http://www.2080skin.co.kr/", type: "style-white" },
+        { name: "장의원", lat: 35.9155004367767, lng: 128.628829319899, url: "https://naver.me/5XJtvo5u", type: "style-white" },
+        { name: "서울스마트피부과의원", lat: 35.8392597629832, lng: 128.625099761871, url: "https://smartskin.kr/", type: "style-white" },
+        { name: "늘시원한위대항의원", lat: 35.8995191970569, lng: 128.611104335977, url: "https://naver.me/5oE4H0px", type: "style-white" },
+       
+       
+    ];
+
+   // 지도 상에 마커 올리기
+    stores.forEach(function(store) {
+        var icon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<a href="${store.url}" target="_blank" class="company-box ${store.type}">${store.name}</a>`,
+            iconSize: [100, 30],
+            iconAnchor: [50, 15]
+        });
+
+        // 경대간호학원(style-kdnurse)은 남쪽에 다른 의원이 있어도 무조건 제일 위에 표시 (Offset: 500)
+        var defaultZIndex = (store.type === 'style-kdnurse') ? 500 : 0;
+
+        var marker = L.marker([store.lat, store.lng], { 
+            icon: icon,
+            zIndexOffset: defaultZIndex
+        }).addTo(map);
+
+        // 마우스를 얹었을 때 최상위(1000)로 설정
+        marker.on('mouseover', function () {
+            this.setZIndexOffset(1000);
+        });
+
+        // 마우스가 떠났을 때 본래 우선순위(경대간호학원은 500, 일반은 0)로 복귀
+        marker.on('mouseout', function () {
+            this.setZIndexOffset(defaultZIndex);
+        });
+    });
+</script>
+
+</body>
+</html>
