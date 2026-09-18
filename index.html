@@ -230,6 +230,9 @@
             this.setZIndexOffset(defaultZIndex);
         });
     });
+    setTimeout(function() {
+        map.invalidateSize();
+    }, 300);
 </script>
 
 </body>
