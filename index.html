@@ -9,7 +9,7 @@
 
     <style>
         html, body { margin: 0; padding: 0; width: 100%; height: 100%; }
-        #map { width: 100%; height: 750px; }
+        #map { width: 100%; height: 500px; }
         .leaflet-div-icon { background: transparent !important; border: none !important; }
 
         /* 공통 기본 형태 */
@@ -30,45 +30,37 @@
             transform: scale(1.08);
         }
 
-        /* --------------------------------------------------
-           [개별 배경색 & 글자색 설정]
-        -------------------------------------------------- */
-        /* 흰색 배경 + 검은 글자 (기본용) */
+        /* 개별 배경색 & 글자색 설정 */
         .company-box.style-white {
             background-color: #ffffff;
             color: #212529;
             border: 2px solid #333333;
         }
 
-        /* 파란 배경 + 흰 글자 (강조용) */
         .company-box.style-blue {
             background-color: #007bff;
             color: #ffffff;
             border: 1px solid #0056b3;
         }
 
-        /* 빨간 배경 + 흰 글자 (강조용) */
         .company-box.style-red {
             background-color: #dc3545;
             color: #ffffff;
             border: 1px solid #bd2130;
         }
 
-        /* 노란 배경 + 검은 글자 (강조용) */
         .company-box.style-yellow {
             background-color: #ffc107;
             color: #212529;
             border: 1px solid #e0a800;
         }
 
-        /* 초록 배경 + 흰 글자 (강조용) */
         .company-box.style-green {
             background-color: #28a745;
             color: #ffffff;
             border: 1px solid #1d7832;
         }
 
-        /* 경대간호학원용 (강조용) */
         .company-box.style-kdnurse {
             background-color: #007bff;
             color: #ffffff;
@@ -76,9 +68,7 @@
             font-size: 15px;
         }
 
-        /* --------------------------------------------------
-           [원위치 커스텀 버튼 스타일]
-        -------------------------------------------------- */
+        /* 원위치 커스텀 버튼 스타일 */
         .reset-btn {
             background-color: #ffffff;
             border: 2px solid rgba(0,0,0,0.2);
@@ -104,10 +94,10 @@
 <div id="map"></div>
 
 <script>
-    // 경대간호학원이 첫 화면 중심에 오도록 좌표 및 줌 레벨 조절
-    var initialLat = 35.8980229607434;
-    var initialLng = 128.61481967896094;
-    var initialZoom = 11.5;
+    // 경대간호학원이 모바일 세로 화면 중앙에 오도록 중심 좌표 보정 (위도를 35.918로 살짝 상향 조정)
+    var initialLat = 35.9180229;
+    var initialLng = 128.6148196;
+    var initialZoom = 11;
 
     // 지도 생성
     var map = L.map('map').setView([initialLat, initialLng], initialZoom);
@@ -117,20 +107,17 @@
         attribution: '© OpenStreetMap'
     }).addTo(map);
 
-    // --------------------------------------------------
-    // [원위치 버튼 컨트롤 추가]
-    // --------------------------------------------------
+    // 원위치 버튼 컨트롤 추가
     var resetControl = L.control({ position: 'topright' });
 
     resetControl.onAdd = function (map) {
         var div = L.DomUtil.create('div', 'leaflet-bar');
         div.innerHTML = '<button class="reset-btn" title="초기 위치로 이동">🏠 원위치</button>';
         
-        // 버튼 클릭 시 지도 이벤트 전파 방지 및 위치 초기화
         L.DomEvent.disableClickPropagation(div);
         div.onclick = function () {
             map.flyTo([initialLat, initialLng], initialZoom, {
-                duration: 1 /* 1초 동안 부드럽게 이동 */
+                duration: 1
             });
         };
         return div;
@@ -140,10 +127,7 @@
 
     // 총 업체 데이터
     var stores = [
-        // --- [경대간호학원 메인] ---
         { name: "경대간호학원", lat: 35.8980229607434, lng: 128.61481967896094, url: "http://kdnurse.com", type: "style-kdnurse" },
-
-        // --- [협약 병원 목록] ---
         { name: "K마디병원", lat: 35.8881315992025, lng: 128.573930810618, url: "https://www.kmadi.com/", type: "style-white" },
         { name: "MS재건병원", lat: 35.87192212679198, lng: 128.60488990191826, url: "https://www.msrhospital.kr/", type: "style-white" },
         { name: "W병원", lat: 35.8526419786843, lng: 128.544967362702, url: "https://w-hospital.co.kr/", type: "style-white" },
@@ -212,7 +196,6 @@
             iconAnchor: [50, 15]
         });
 
-        // 경대간호학원(style-kdnurse)은 남쪽에 다른 의원이 있어도 무조건 제일 위에 표시 (Offset: 500)
         var defaultZIndex = (store.type === 'style-kdnurse') ? 500 : 0;
 
         var marker = L.marker([store.lat, store.lng], { 
@@ -220,16 +203,16 @@
             zIndexOffset: defaultZIndex
         }).addTo(map);
 
-        // 마우스를 얹었을 때 최상위(1000)로 설정
         marker.on('mouseover', function () {
             this.setZIndexOffset(1000);
         });
 
-        // 마우스가 떠났을 때 본래 우선순위(경대간호학원은 500, 일반은 0)로 복귀
         marker.on('mouseout', function () {
             this.setZIndexOffset(defaultZIndex);
         });
     });
+
+    // 화면 크기 재계산
     setTimeout(function() {
         map.invalidateSize();
     }, 300);
